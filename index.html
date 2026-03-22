@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <!-- ── VIEWPORT — prevent zoom, full screen on mobile ── -->
+    <meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0,
+               minimum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+
+    <!-- ── PWA / ANDROID ──────────────────────────────────── -->
+    <meta name="theme-color" content="#63b3ed" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="NeoTerm" />
+
+    <!-- ── PWA / iOS (Safari) ────────────────────────────── -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="NeoTerm" />
+
+    <!-- ── SEO ───────────────────────────────────────────── -->
+    <meta name="description"
+      content="NeoTerm — The ultimate terminal PWA for Android. Beyond Termux. AI-powered, offline-ready, installable." />
+    <meta name="keywords"
+      content="terminal, android, PWA, linux, bash, termux, shell, SSH, docker, git" />
+    <meta name="author" content="NeoTerm" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- ── Open Graph ────────────────────────────────────── -->
+    <meta property="og:title"       content="NeoTerm — Ultimate Android Terminal" />
+    <meta property="og:description" content="Beyond Termux. AI-powered terminal PWA." />
+    <meta property="og:type"        content="website" />
+    <meta property="og:image"       content="/icons/icon-512.png" />
+
+    <!-- ── Twitter Card ──────────────────────────────────── -->
+    <meta name="twitter:card"        content="summary" />
+    <meta name="twitter:title"       content="NeoTerm PWA" />
+    <meta name="twitter:description" content="The most powerful terminal for Android" />
+
+    <!-- ── MANIFEST ──────────────────────────────────────── -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- ── ICONS ─────────────────────────────────────────── -->
+    <link rel="icon"             href="/icons/icon-192.png" />
+    <link rel="shortcut icon"    href="/icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144.png" />
+    <link rel="apple-touch-icon" sizes="128x128" href="/icons/icon-128.png" />
+
+    <!-- ── iOS Splash Screens ────────────────────────────── -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- ── FONTS preconnect for speed ────────────────────── -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- ── Prevent FOUC ──────────────────────────────────── -->
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body, #root {
+        height: 100%; width: 100%;
+        background: #0a0e1a;
+        overflow: hidden;
+        -webkit-tap-highlight-color: transparent;
+      }
+      /* Loading screen shown before React mounts */
+      #loading {
+        position: fixed; inset: 0;
+        background: #0a0e1a;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        gap: 16px; z-index: 9999;
+        font-family: 'JetBrains Mono', monospace;
+        transition: opacity 0.4s ease;
+      }
+      #loading-logo {
+        font-size: 52px; color: #63b3ed;
+        animation: pulse 1.5s ease-in-out infinite;
+      }
+      #loading-text {
+        font-size: 22px; font-weight: 700; color: #63b3ed;
+        letter-spacing: 0.08em;
+      }
+      #loading-sub {
+        font-size: 12px; color: #4a5568;
+        letter-spacing: 0.05em;
+      }
+      #loading-bar {
+        width: 180px; height: 2px;
+        background: #1c2640; border-radius: 99px;
+        overflow: hidden; margin-top: 8px;
+      }
+      #loading-fill {
+        height: 100%; background: #63b3ed;
+        border-radius: 99px;
+        animation: load 1.8s ease forwards;
+      }
+      @keyframes pulse {
+        0%,100% { opacity: 1; } 50% { opacity: 0.5; }
+      }
+      @keyframes load {
+        from { width: 0; } to { width: 100%; }
+      }
+    </style>
+
+    <title>NeoTerm — Ultimate Android Terminal</title>
+  </head>
+
+  <body>
+    <!-- Loading screen — hidden when React mounts -->
+    <div id="loading">
+      <div id="loading-logo">◈</div>
+      <div id="loading-text">NeoTerm</div>
+      <div id="loading-sub">v3.0 · Beyond Termux</div>
+      <div id="loading-bar"><div id="loading-fill"></div></div>
+    </div>
+
+    <!-- React root -->
+    <div id="root"></div>
+
+    <!-- ── SERVICE WORKER REGISTRATION ───────────────────── -->
+    <script>
+      // Hide loading screen when app is ready
+      window.__neoterm_ready = function() {
+        const el = document.getElementById("loading");
+        if (el) { el.style.opacity = "0"; setTimeout(() => el.remove(), 400); }
+      };
+
+      // Register service worker
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", async () => {
+          try {
+            const reg = await navigator.serviceWorker.register("/sw.js", {
+              scope: "/"
+            });
+            console.log("[NeoTerm] SW registered:", reg.scope);
+
+            // Check for updates every 60 seconds
+            setInterval(() => reg.update(), 60000);
+
+            // Notify user when update is available
+            reg.addEventListener("updatefound", () => {
+              const newWorker = reg.installing;
+              newWorker.addEventListener("statechange", () => {
+                if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+                  console.log("[NeoTerm] Update available — reload to apply");
+                  // You can show an in-app update banner here
+                }
+              });
+            });
+          } catch (err) {
+            console.error("[NeoTerm] SW registration failed:", err);
+          }
+        });
+
+        // Handle SW controller change (auto-refresh after update)
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener("controllerchange", () => {
+          if (!refreshing) {
+            refreshing = true;
+            window.location.reload();
+          }
+        });
+      }
+
+      // Install prompt — save for later use in-app
+      let deferredPrompt;
+      window.addEventListener("beforeinstallprompt", (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        window.__neoterm_install_prompt = deferredPrompt;
+        console.log("[NeoTerm] Install prompt ready");
+      });
+
+      window.addEventListener("appinstalled", () => {
+        console.log("[NeoTerm] App installed successfully!");
+        deferredPrompt = null;
+      });
+
+      // Prevent context menu on long press (mobile)
+      document.addEventListener("contextmenu", e => e.preventDefault());
+
+      // Prevent pull-to-refresh on Android Chrome
+      document.addEventListener("touchmove", e => {
+        if (e.touches.length > 1) e.preventDefault();
+      }, { passive: false });
+    </script>
+  </body>
+</html>

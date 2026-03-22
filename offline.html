@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+  <title>NeoTerm — Offline</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      background:#0a0e1a;color:#e2e8f0;
+      font-family:'JetBrains Mono',monospace;
+      display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      min-height:100vh;padding:24px;text-align:center;
+    }
+    .logo{font-size:56px;color:#63b3ed;margin-bottom:16px;animation:pulse 2s ease-in-out infinite}
+    h1{font-size:22px;font-weight:700;color:#63b3ed;margin-bottom:8px;letter-spacing:.05em}
+    .sub{font-size:13px;color:#4a5568;margin-bottom:32px;line-height:1.6}
+    .status-box{
+      background:#0f1629;border:1px solid rgba(99,179,237,.15);
+      border-radius:14px;padding:20px;width:100%;max-width:320px;margin-bottom:24px;
+    }
+    .status-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:12px}
+    .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .dot-red{background:#fc8181}
+    .dot-green{background:#68d391;animation:pulse 1.5s ease infinite}
+    .dot-yellow{background:#f6ad55}
+    .btn{
+      padding:12px 28px;border-radius:12px;border:none;
+      background:#63b3ed;color:#0a0e1a;
+      font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;
+      cursor:pointer;transition:all .2s;margin-bottom:12px;width:100%;max-width:280px;
+    }
+    .btn:active{transform:scale(.97)}
+    .btn-ghost{background:transparent;border:1px solid rgba(99,179,237,.3);color:#63b3ed}
+    .tip{font-size:11px;color:#4a5568;margin-top:20px;line-height:1.6}
+    .version{position:fixed;bottom:16px;font-size:10px;color:#2d3748}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  </style>
+</head>
+<body>
+  <div class="logo">◈</div>
+  <h1>NeoTerm</h1>
+  <p class="sub">You are currently offline.<br/>Some features require internet connection.</p>
+
+  <div class="status-box">
+    <div class="status-row">
+      <div class="dot dot-red"></div>
+      <span style="color:#fc8181">Internet connection lost</span>
+    </div>
+    <div class="status-row">
+      <div class="dot dot-green"></div>
+      <span style="color:#68d391">Local terminal — available offline</span>
+    </div>
+    <div class="status-row">
+      <div class="dot dot-green"></div>
+      <span style="color:#68d391">File manager — available offline</span>
+    </div>
+    <div class="status-row">
+      <div class="dot dot-green"></div>
+      <span style="color:#68d391">Cached sessions — available offline</span>
+    </div>
+    <div class="status-row">
+      <div class="dot dot-yellow"></div>
+      <span style="color:#f6ad55">AI Assistant — requires internet</span>
+    </div>
+    <div class="status-row">
+      <div class="dot dot-yellow"></div>
+      <span style="color:#f6ad55">Browser — requires internet</span>
+    </div>
+  </div>
+
+  <button class="btn" onclick="location.reload()">🔄 Retry Connection</button>
+  <button class="btn btn-ghost" onclick="window.history.back()">← Go Back</button>
+
+  <p class="tip">
+    NeoTerm works offline for most features.<br/>
+    Your terminal history and files are cached locally.
+  </p>
+
+  <div class="version">NeoTerm v3.0.0 · PWA</div>
+</body>
+</html>
