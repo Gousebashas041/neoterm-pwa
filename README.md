@@ -1,2 +1,0 @@
-# neoterm-pwa
-Mobile Terminal
